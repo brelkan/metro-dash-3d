@@ -65,6 +65,7 @@
       document.addEventListener('keydown', onKeyDown);
       setInterval(spawnObstacle, 1500);
       setInterval(spawnCoin, 2500);
+      window.addEventListener('resize', onWindowResize);
     }
 
     function spawnObstacle() {
@@ -133,6 +134,12 @@
         currentLane++;
         player.position.x = laneX[currentLane];
       }
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
     }
   </script>
 </body>
