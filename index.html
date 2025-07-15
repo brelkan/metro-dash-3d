@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Metro Dash 3D - Neon Runner</title>
+  <style>
+    body { margin: 0; overflow: hidden; background: black; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
+  <script>
+    let scene, camera, renderer;
+    let player, lanes = [], obstacles = [], coins = [];
+    let laneX = [-2, 0, 2];
+    let currentLane = 1;
+    let zSpeed = 0.2;
+    let score = 0;
+
+    init();
+    animate();
+
+    function init() {
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x000000);
+
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+      camera.position.set(0, 5, 10);
+      camera.lookAt(0, 0, 0);
+
+      renderer = new THREE.WebGLRenderer({antialias: true});
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      const ambient = new THREE.AmbientLight(0x404040);
+      scene.add(ambient);
+      const dirLight = new THREE.DirectionalLight(0x00ffff, 1);
+      dirLight.position.set(0, 10, 5);
+      scene.add(dirLight);
+
+      const laneMaterial = new THREE.MeshStandardMaterial({ color: 0x111111, emissive: 0x222222 });
+      for (let i = 0; i < 3; i++) {
+        const lane = new THREE.Mesh(
+          new THREE.BoxGeometry(1.5, 0.1, 50),
+          laneMaterial
+        );
+        lane.position.x = laneX[i];
+        lane.position.y = -0.1;
+        scene.add(lane);
+        lanes.push(lane);
+      }
+
+      const playerMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff88, emissive: 0x00ffaa });
+      player = new THREE.Mesh(
+        new THREE.BoxGeometry(1, 1, 1),
+        playerMaterial
+      );
+      player.position.set(0, 0.5, 0);
+      scene.add(player);
+
+      document.addEventListener('keydown', onKeyDown);
+      setInterval(spawnObstacle, 1500);
+      setInterval(spawnCoin, 2500);
+    }
+
+    function spawnObstacle() {
+      const lane = laneX[Math.floor(Math.random() * 3)];
+      const obsMaterial = new THREE.MeshStandardMaterial({ color: 0xff0044, emissive: 0xaa0022 });
+      const obs = new THREE.Mesh(
+        new THREE.BoxGeometry(1, 1, 1),
+        obsMaterial
+      );
+      obs.position.set(lane, 0.5, -25);
+      scene.add(obs);
+      obstacles.push(obs);
+    }
+
+    function spawnCoin() {
+      const lane = laneX[Math.floor(Math.random() * 3)];
+      const coinMaterial = new THREE.MeshStandardMaterial({ color: 0xffff00, emissive: 0xffdd00 });
+      const coin = new THREE.Mesh(
+        new THREE.SphereGeometry(0.4, 16, 16),
+        coinMaterial
+      );
+      coin.position.set(lane, 0.5, -25);
+      scene.add(coin);
+      coins.push(coin);
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      obstacles.forEach((o, i) => {
+        o.position.z += zSpeed;
+        if (o.position.z > 10) {
+          scene.remove(o);
+          obstacles.splice(i, 1);
+        }
+        if (Math.abs(o.position.z - player.position.z) < 0.5 &&
+            Math.abs(o.position.x - player.position.x) < 1) {
+          alert("Game Over! Score: " + score);
+          window.location.reload();
+        }
+      });
+
+      coins.forEach((c, i) => {
+        c.position.z += zSpeed;
+        if (c.position.z > 10) {
+          scene.remove(c);
+          coins.splice(i, 1);
+        }
+        if (Math.abs(c.position.z - player.position.z) < 0.5 &&
+            Math.abs(c.position.x - player.position.x) < 1) {
+          scene.remove(c);
+          coins.splice(i, 1);
+          score += 5;
+          console.log("Score: ", score);
+        }
+      });
+
+      renderer.render(scene, camera);
+    }
+
+    function onKeyDown(e) {
+      if (e.key === 'ArrowLeft' && currentLane > 0) {
+        currentLane--;
+        player.position.x = laneX[currentLane];
+      } else if (e.key === 'ArrowRight' && currentLane < 2) {
+        currentLane++;
+        player.position.x = laneX[currentLane];
+      }
+    }
+  </script>
+</body>
+</html>
