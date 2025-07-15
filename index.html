@@ -36,12 +36,14 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
       document.body.appendChild(renderer.domElement);
 
+      // Lights
       const ambient = new THREE.AmbientLight(0x404040);
       scene.add(ambient);
       const dirLight = new THREE.DirectionalLight(0x00ffff, 1);
       dirLight.position.set(0, 10, 5);
       scene.add(dirLight);
 
+      // Lanes
       const laneMaterial = new THREE.MeshStandardMaterial({ color: 0x111111, emissive: 0x222222 });
       for (let i = 0; i < 3; i++) {
         const lane = new THREE.Mesh(
@@ -54,6 +56,7 @@
         lanes.push(lane);
       }
 
+      // Player
       const playerMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff88, emissive: 0x00ffaa });
       player = new THREE.Mesh(
         new THREE.BoxGeometry(1, 1, 1),
@@ -62,6 +65,7 @@
       player.position.set(0, 0.5, 0);
       scene.add(player);
 
+      // Input
       document.addEventListener('keydown', onKeyDown);
       setInterval(spawnObstacle, 1500);
       setInterval(spawnCoin, 2500);
@@ -92,9 +96,9 @@
     }
 
     function animate() {
-      camera.position.z -= zSpeed;
       requestAnimationFrame(animate);
 
+      // Move obstacles and coins
       obstacles.forEach((o, i) => {
         o.position.z += zSpeed;
         if (o.position.z > 10) {
