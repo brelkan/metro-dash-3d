@@ -19,8 +19,10 @@
     let zSpeed = 0.2;
     let score = 0;
 
-    init();
-    animate();
+    window.onload = () => {
+      init();
+      animate();
+    };
 
     function init() {
       scene = new THREE.Scene();
